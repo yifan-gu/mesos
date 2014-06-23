@@ -125,7 +125,7 @@ Try<MesosContainerizer*> MesosContainerizer::create(
   LOG(INFO) << "Using isolation: " << isolation;
 
   // Create a MesosContainerizerProcess using isolators and a launcher.
-  hashmap<std::string, Try<Isolator*> (*)(const Flags&)> creators;
+  hashmap<string, Try<Isolator*> (*)(const Flags&)> creators;
 
   creators["posix/cpu"]   = &PosixCpuIsolatorProcess::create;
   creators["posix/mem"]   = &PosixMemIsolatorProcess::create;
@@ -196,7 +196,7 @@ Future<Nothing> MesosContainerizer::recover(
 }
 
 
-Future<Nothing> MesosContainerizer::launch(
+Future<bool> MesosContainerizer::launch(
     const ContainerID& containerId,
     const ExecutorInfo& executorInfo,
     const string& directory,
@@ -217,7 +217,7 @@ Future<Nothing> MesosContainerizer::launch(
 }
 
 
-Future<Nothing> MesosContainerizer::launch(
+Future<bool> MesosContainerizer::launch(
     const ContainerID& containerId,
     const TaskInfo& taskInfo,
     const ExecutorInfo& executorInfo,
@@ -515,7 +515,7 @@ int execute(
 // 4. Exec the executor. The forked child is signalled to continue. It will
 //    first execute any preparation commands from isolators and then exec the
 //    executor.
-Future<Nothing> MesosContainerizerProcess::launch(
+Future<bool> MesosContainerizerProcess::launch(
     const ContainerID& containerId,
     const ExecutorInfo& executorInfo,
     const string& directory,
@@ -535,10 +535,10 @@ Future<Nothing> MesosContainerizerProcess::launch(
   // run.
   const CommandInfo& command = executorInfo.command();
   if (command.has_container()) {
-    // We return a Failure as this containerizer does not support
+    // We return false as this containerizer does not support
     // handling ContainerInfo. Users have to be made aware of this
     // lack of support to prevent confusion in the task configuration.
-    return Failure("ContainerInfo is not supported");
+    return false;
   }
 
   Owned<Promise<containerizer::Termination> > promise(
@@ -569,7 +569,7 @@ Future<Nothing> MesosContainerizerProcess::launch(
 }
 
 
-Future<Nothing> MesosContainerizerProcess::launch(
+Future<bool> MesosContainerizerProcess::launch(
     const ContainerID& containerId,
     const TaskInfo&,
     const ExecutorInfo& executorInfo,
@@ -741,7 +741,7 @@ Future<Nothing> MesosContainerizerProcess::fetch(
 }
 
 
-Future<Nothing> MesosContainerizerProcess::_launch(
+Future<bool> MesosContainerizerProcess::_launch(
     const ContainerID& containerId,
     const ExecutorInfo& executorInfo,
     const string& directory,
@@ -854,7 +854,13 @@ Future<Nothing> MesosContainerizerProcess::_launch(
 }
 
 
-Future<Nothing> MesosContainerizerProcess::isolate(
+static Future<bool> _isolate()
+{
+  return true;
+}
+
+
+Future<bool> MesosContainerizerProcess::isolate(
     const ContainerID& containerId,
     pid_t _pid)
 {
@@ -872,11 +878,11 @@ Future<Nothing> MesosContainerizerProcess::isolate(
 
   // Wait for all isolators to complete.
   return collect(futures)
-    .then(lambda::bind(&_nothing));
+    .then(lambda::bind(&_isolate));
 }
 
 
-Future<Nothing> MesosContainerizerProcess::exec(
+Future<bool> MesosContainerizerProcess::exec(
     const ContainerID& containerId,
     int pipeWrite)
 {
@@ -894,7 +900,7 @@ Future<Nothing> MesosContainerizerProcess::exec(
                    string(strerror(errno)));
   }
 
-  return Nothing();
+  return true;
 }
 
 

@@ -53,7 +53,7 @@ public:
   virtual process::Future<Nothing> recover(
       const Option<state::SlaveState>& state);
 
-  virtual process::Future<Nothing> launch(
+  virtual process::Future<bool> launch(
       const ContainerID& containerId,
       const ExecutorInfo& executorInfo,
       const std::string& directory,
@@ -62,7 +62,7 @@ public:
       const process::PID<Slave>& slavePid,
       bool checkpoint);
 
-  virtual process::Future<Nothing> launch(
+  virtual process::Future<bool> launch(
       const ContainerID& containerId,
       const TaskInfo& taskInfo,
       const ExecutorInfo& executorInfo,
@@ -110,7 +110,7 @@ public:
   process::Future<Nothing> recover(
       const Option<state::SlaveState>& state);
 
-  process::Future<Nothing> launch(
+  process::Future<bool> launch(
       const ContainerID& containerId,
       const ExecutorInfo& executorInfo,
       const std::string& directory,
@@ -119,7 +119,7 @@ public:
       const process::PID<Slave>& slavePid,
       bool checkpoint);
 
-  process::Future<Nothing> launch(
+  process::Future<bool> launch(
       const ContainerID& containerId,
       const TaskInfo& taskInfo,
       const ExecutorInfo& executorInfo,
@@ -162,7 +162,7 @@ private:
       const std::string& directory,
       const Option<std::string>& user);
 
-  process::Future<Nothing> _launch(
+  process::Future<bool> _launch(
       const ContainerID& containerId,
       const ExecutorInfo& executorInfo,
       const std::string& directory,
@@ -172,11 +172,11 @@ private:
       bool checkpoint,
       const std::list<Option<CommandInfo> >& scripts);
 
-  process::Future<Nothing> isolate(
+  process::Future<bool> isolate(
       const ContainerID& containerId,
       pid_t _pid);
 
-  process::Future<Nothing> exec(
+  process::Future<bool> exec(
       const ContainerID& containerId,
       int pipeWrite);
 
