@@ -262,6 +262,11 @@ public:
         "default_container_image",
         "The default container image to use if not specified by a task,\n"
         "when using external containerizer");
+
+    add(&Flags::docker,
+        "docker",
+        "The path to the docker executable for docker containerizer.",
+        "docker");
   }
 
   bool version;
@@ -300,6 +305,7 @@ public:
   Option<std::string> containerizer_path;
   std::string containerizers;
   Option<std::string> default_container_image;
+  std::string docker;
 };
 
 } // namespace mesos {
