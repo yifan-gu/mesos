@@ -68,8 +68,9 @@ public:
   process::Future<Container> inspect(
       const std::string& container) const;
 
-  // Performs 'docker ps'.
-  process::Future<std::list<Container> > ps() const;
+  // Performs 'docker ps (-a)'.
+  process::Future<std::list<Container> > ps(
+      const bool all = true) const;
 
 private:
   // Continuations.
