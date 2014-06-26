@@ -38,7 +38,12 @@ Try<Nothing> Docker::validate(const Docker &docker)
 string Docker::Container::id() const
 {
   map<string, JSON::Value>::const_iterator entry =
-    json.values.find("ID");
+#ifdef __linux__
+    json.values.find("Id");
+#else
+  json.values.find("ID");
+#endif // __linux__
+
   CHECK(entry != json.values.end());
   JSON::Value value = entry->second;
   CHECK(value.is<JSON::String>());
