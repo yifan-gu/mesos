@@ -1913,6 +1913,9 @@ TEST_F(MasterTest, OrphanTasks)
   // Stop the master.
   Stop(master.get());
 
+  driver.stop();
+  driver.join();
+
   Future<SlaveReregisteredMessage> slaveReregisteredMessage =
     FUTURE_PROTOBUF(SlaveReregisteredMessage(), master.get(), _);
 
@@ -1924,8 +1927,6 @@ TEST_F(MasterTest, OrphanTasks)
   Future<FrameworkRegisteredMessage> frameworkRegisteredMessage =
     FUTURE_PROTOBUF(FrameworkRegisteredMessage(), master.get(), _);
 
-  Clock::pause();
-
   // The master failover.
   master = StartMaster();
   ASSERT_SOME(master);
@@ -1934,6 +1935,12 @@ TEST_F(MasterTest, OrphanTasks)
   detector.appoint(master.get());
 
   AWAIT_READY(slaveReregisteredMessage);
+
+  // Pause the clock and start the framework.
+  // So that the framework will not retry the registration.
+  Clock::pause();
+  driver.start();
+
   AWAIT_READY(reregisterFrameworkMessage);
 
   // Get the master's state.
